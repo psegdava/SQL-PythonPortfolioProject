@@ -6,7 +6,7 @@ ORDER BY 1,2
 -- Total Cases vs Total Deaths
 SELECT location, date, total_cases, total_deaths, (CAST(total_deaths AS float)/CAST(total_cases AS float))*100 as DeathPercentage
 FROM PortfolioProject..CovidDeaths
-WHERE location='Spain'
+WHERE continent IS NOT NULL
 ORDER BY 1,2
 
 -- Total Cases vs Population
@@ -100,3 +100,30 @@ WHERE dea.continent IS NOT NULL
 
 SELECT * 
 FROM PercentPopulationVaccinated
+
+--Tableau
+
+--Table 1
+SELECT SUM(CAST(total_cases AS bigint)) AS GlobalTotalInfections, SUM(CAST(total_deaths AS bigint)) AS GlobalTotalDeaths, 
+	(SUM(CAST(total_deaths AS float)) / SUM(CAST(total_cases AS float))) * 100 as DeathPercentage
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NOT NULL
+
+--Table 2
+SELECT location, SUM(CAST(new_deaths as int)) as TotalDeathCount
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NULL
+	AND location NOT IN ('European Union', 'World', 'High Income', 'Upper middle income', 'Low income', 'Lower middle income')
+GROUP BY location
+
+--Table 3
+SELECT location, Population, MAX(total_cases) as HighestInfectionCount, MAX(total_cases/population)*100 as PercentPopulationInfected
+FROM PortfolioProject..CovidDeaths
+GROUP BY location, Population
+ORDER BY PercentPopulationInfected DESC
+
+--Table 4
+SELECT location, Population, date, MAX(total_cases) as HighestInfectionCount, MAX(total_cases/population)*100 as PercentPopulationInfected
+FROM PortfolioProject..CovidDeaths
+GROUP BY population, location, date
+ORDER BY PercentPopulationInfected DESC
